@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/modules/login/views/login_view.dart';
 
 import 'package:get/get.dart';
 
@@ -13,11 +14,25 @@ class HomeView extends GetView<HomeController> {
         title: const Text('HomeView'),
         centerTitle: true,
       ),
-      body: const Center(
-        child: Text(
-          'HomeView is working',
-          style: TextStyle(fontSize: 20),
-        ),
+      body: Center(
+        child: Column(
+          children: [
+            const Text(
+              'HomeView is working',
+              style: TextStyle(fontSize: 20),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => LoginView(),
+                  ),
+                );
+              },
+              child: const Text("Overview"),
+            ),
+          ],
+        )
       ),
     );
   }
