@@ -19,7 +19,7 @@ const app = express();
 const PORT = process.env.SERVER_PORT;
 
 app.use(cookieParser());
-app.use(cors()); 
+app.use(cors({ origin: '*' }));
 app.use('/uploads', express.static(path.join(__dirname, '../../server/uploads')));
 app.use(bodyParse.json({ limit: '10mb' }));
 app.use(express.json());
