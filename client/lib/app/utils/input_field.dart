@@ -16,15 +16,13 @@ class InputTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
-        ),
         SizedBox(height: 8),
         TextField(
           controller: controller,
-          obscureText: obscureText, // Hide text for password fields
+          obscureText: obscureText, 
           decoration: InputDecoration(
+            hintText: label,
+            hintStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
             ),

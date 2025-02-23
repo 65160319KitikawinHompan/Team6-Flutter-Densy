@@ -93,8 +93,8 @@ export async function logout(req: Request, res: Response) {
  * - ถ้า Token ถูกต้อง: ส่งต่อการทำงานไปยังฟังก์ชันถัดไป (next middleware)
  * - ถ้า TOken ไม่ถูกต้อง: JSON message แจ้งเตือนข้อผิดพลาด เช่น "Access Denied" หรือ "Invalid Token"
 **/
-export function authenticateUser(req: Request, res: Response, next: NextFunction) {
-  const token = req.cookies.authToken;
+export const authenticateUser = (req: Request, res: Response, next: NextFunction): void => {
+  const token = req.cookies.authToken || req.headers.authorization?.split(' ')[1];
 
   if (!token) {
     res.status(401).json({ message: "Access Denied, No Token Provided" });
@@ -104,13 +104,12 @@ export function authenticateUser(req: Request, res: Response, next: NextFunction
   try {
     const jwtSecret = process.env.JWT_SECRET || "defaultSecretKey";
     const decoded = jwt.verify(token, jwtSecret);
-    req.user = decoded;
-    next();
+    (req as any).user = decoded; 
+    next(); 
   } catch (error) {
-    res.status(400).json({ message: "Invalid Token", error })
-    return
+    res.status(400).json({ message: "Invalid Token", error });
   }
-}
+};
 
 /**
  * คำอธิบาย: ฟังก์ชันสำหรับอัพโหลดรูปภาพโดยใช้ multer

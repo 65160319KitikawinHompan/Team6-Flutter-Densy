@@ -1,17 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import '../../../routes/app_pages.dart';
 
 class LoginController extends GetxController {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final RxBool isLoading = false.obs;
   final Dio dio = Dio();
+  final box = GetStorage();
 
   Future<void> login() async {
-    isLoading.value = true;
-
     try {
       var response = await dio.post(
         "http://localhost:4000/api/login",
@@ -24,18 +23,20 @@ class LoginController extends GetxController {
       print("Request successful: Status ${response.toString()}");
 
       if (response.statusCode == 200) {
+        String accessToken = response.data['token'];
+        
+        box.write('token', accessToken);
+
         Get.snackbar("Success", "Login Successful");
-        Get.offAllNamed(Routes.HOME);
+        Get.offAllNamed(Routes.PATROL);
         print("Success Login Successful");
       } else {
         Get.snackbar("Error", "Invalid credentials");
         print("Error Invalid credentials");
       }
     } catch (e) {
-      Get.snackbar("Error", "Login failed: $e");
+      Get.snackbar("Fail to Login", "Login failed : Invalid Username Or Password");
       print("Error fetch");
-    } finally {
-      isLoading.value = false;
     }
   }
 }
