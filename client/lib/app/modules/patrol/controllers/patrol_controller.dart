@@ -4,14 +4,15 @@ import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
 
 class PatrolController extends GetxController {
-  List<dynamic> patrolsData = [];
+  var patrolsData = <dynamic>[].obs;
+
   final dio = Dio();
 
   @override
   void onInit() {
     super.onInit();
     print("PatrolController initialized");
-    fetchData(); 
+    fetchData();
   }
 
   Future<void> fetchData() async {
@@ -22,8 +23,6 @@ class PatrolController extends GetxController {
       if (accessToken == null) {
         print("Error: Access Token is missing.");
         return;
-      } else {
-        print("Access Token found: $accessToken");
       }
 
       var response = await dio.get(
@@ -35,25 +34,23 @@ class PatrolController extends GetxController {
         ),
       );
 
-      print("Response received: Status Code = ${response.statusCode}");
-      print("Response data: ${response.data}");
-
       if (response.statusCode == 200) {
-        patrolsData = response.data;
+        patrolsData.value =
+            response.data; 
         print("Data fetched successfully: ${patrolsData}");
       } else {
         print("Error: Unexpected status code ${response.statusCode}");
       }
     } catch (e) {
       print("Fetch Error: $e");
-    } 
+    }
   }
 
   Future<void> logout() async {
     try {
       var response = await dio.post("http://localhost:4000/api/logout");
       print("Logout Successfully");
-       Get.offAllNamed(Routes.HOME);
+      Get.offAllNamed(Routes.HOME);
     } catch (e) {
       print(e);
     }
