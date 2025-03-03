@@ -55,7 +55,7 @@ export async function login(req: Request, res: Response) {
       maxAge: maxAge,
     });
 
-    res.status(200).json({ message: "Login Success", token });
+    res.status(200).json({ message: "Login Success", token, userId: user.id });
     return
   } catch (error) {
     res.status(500).json({ message: `Internal server error: ${error}` });

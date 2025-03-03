@@ -24,8 +24,10 @@ class LoginController extends GetxController {
 
       if (response.statusCode == 200) {
         String accessToken = response.data['token'];
+        int userId = response.data['userId'];
         
         box.write('token', accessToken);
+        box.write('userId', userId);
 
         Get.snackbar("Success", "Login Successful");
         Get.offAllNamed(Routes.PATROL);
@@ -39,4 +41,6 @@ class LoginController extends GetxController {
       print("Error fetch");
     }
   }
+
+  
 }

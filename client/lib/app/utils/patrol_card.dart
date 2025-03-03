@@ -151,7 +151,7 @@ class PatrolCard extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               CircleAvatar(
-                backgroundImage: NetworkImage(inspectorAvatarUrl),
+                backgroundImage: NetworkImage(inspectorAvatarUrl, scale: 1.0),
                 radius: 10,
               ),
             ],
