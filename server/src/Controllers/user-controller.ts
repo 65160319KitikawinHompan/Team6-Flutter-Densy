@@ -201,13 +201,12 @@ export async function getUser(req: Request, res: Response) {
           role: true,
           createdAt: true,
           active: true,
-          profile: includeProfile
-            ? {
+          profile: 
+            {
               include: {
-                image: includeImage,
+                image: true,
               },
-            }
-            : undefined,
+            },
           zone: true,
         },
       });
@@ -222,13 +221,12 @@ export async function getUser(req: Request, res: Response) {
           role: true,
           createdAt: true,
           active: true,
-          profile: includeProfile
-            ? {
+          profile: 
+            {
               include: {
-                image: includeImage,
+                image: true,
               },
-            }
-            : undefined,
+            },
           zone: true,
         },
       });
