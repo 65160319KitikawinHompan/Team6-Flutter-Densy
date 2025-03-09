@@ -15,30 +15,36 @@ class PatrolListView extends StatelessWidget {
         return const Center(child: Text("No Patrol Found"));
       }
 
-      return SingleChildScrollView(
-        child: Wrap(
-          spacing: 16,
-          runSpacing: 16,
-          alignment: WrapAlignment.start,
-          children: controller.filteredPatrols.map<Widget>((patrol) {
-            final status = patrol["status"] as String;
-            final date = DateTime.parse(patrol["date"]);
-            final presetTitle = patrol["preset"]["title"] as String;
-            final inspectors = patrol["inspectors"] as List;
-            final inspector = inspectors.isNotEmpty ? inspectors[0] : {};
-            final imageData = inspector?["profile"]?["image"];
-            final avatarUrl = imageData != null
-                ? imageData["path"]
-                : "https://avatar.iran.liara.run/public";
+      return Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        alignment: WrapAlignment.start,
+        children: controller.filteredPatrols.map<Widget>((patrol) {
+          final status = patrol["status"] as String;
+          final date = DateTime.parse(patrol["date"]);
+          final presetTitle = patrol["preset"]["title"] as String;
+          final inspectors = patrol["inspectors"] as List;
+          final inspector = inspectors.isNotEmpty ? inspectors[0] : {};
+          final imageData = inspector?["profile"]?["image"];
+          final avatarUrl = imageData != null
+              ? "http://localhost:4000/uploads/${imageData["path"]}"
+              : "https://i.pravatar.cc/300";
 
-            return PatrolCard(
+          return GestureDetector(
+            onTap: () {
+              Get.toNamed(
+                '/patrol/detail/${patrol["id"]}',
+                arguments: patrol, // ส่งข้อมูล patrol ที่ถูกเลือกไปยังหน้า DetailView
+              );
+            },
+            child: PatrolCard(
               status: status,
               date: date,
               presetTitle: presetTitle,
               inspectorAvatarUrl: avatarUrl,
-            );
-          }).toList(),
-        ),
+            ),
+          );
+        }).toList(),
       );
     });
   }
