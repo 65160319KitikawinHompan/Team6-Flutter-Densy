@@ -35,8 +35,8 @@ class LoginView extends GetView<LoginController> {
                 SizedBox(width: 40),
                 const Image(
                 image: 
-                  NetworkImage(
-                    '../../../../../assets/DensyLogo.png',
+                  AssetImage(
+                    'assets/DensyLogo.png', 
                   ),
                   width: 177.31,
                   height: 55.59,
@@ -61,8 +61,8 @@ class LoginView extends GetView<LoginController> {
                       children: [
                         const Image(
                           image: 
-                            NetworkImage(
-                              '../../../../../assets/DensyMascos.png',
+                            AssetImage(
+                              'assets/DensyMascos.png', 
                             ),
                           width: 487,
                           height: 337,
