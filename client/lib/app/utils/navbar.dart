@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
+import 'package:flutter_densy_project/app/modules/patrol/views/patrol_view.dart';
+import 'package:flutter_densy_project/app/modules/setting/views/setting_view.dart';
+import 'package:get/get.dart';
 
 class CustomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    bool isPatrolView = ModalRoute.of(context)?.settings.name == '/patrolView';
+    final ThemeController _themeController = Get.put(ThemeController());
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color:  _themeController.isDarkMode.value ? Colors.grey[800] : Colors.grey[200],
         borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
@@ -21,25 +27,33 @@ class CustomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Home Icon with Background
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.grey[200], // Light background
+          GestureDetector(
+             onTap: () {
+              Get.to(() => const PatrolView());
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isPatrolView ? Colors.transparent : Colors.grey[300], 
+              ),
+              padding: EdgeInsets.all(12),
+              child: Icon(Icons.home_outlined, size: 32, color: _themeController.isDarkMode.value ? Colors.white : Colors.black87),
             ),
-            padding: EdgeInsets.all(12),
-            child: Icon(Icons.home_outlined, size: 32, color: Colors.black87),
           ),
-          // Settings Icon
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.blue, 
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+          GestureDetector(
+             onTap: () {
+              Get.to(() => const SettingView());
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                color: Colors.blue, 
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+              ),
+              padding: EdgeInsets.all(10),
+              child: Icon(Icons.settings, size: 32, color: _themeController.isDarkMode.value ? Colors.black87 : Colors.white),
             ),
-            padding: EdgeInsets.all(10),
-            child: Icon(Icons.settings, size: 32, color: Colors.white),
-          ),
+          )
         ],
       ),
     );
