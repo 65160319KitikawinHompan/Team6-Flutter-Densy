@@ -27,7 +27,7 @@ class SettingController extends GetxController {
     try {
       var response = await dio.post("http://localhost:4000/api/logout");
       print("Logout Successfully");
-      Get.offAllNamed(Routes.HOME);
+      Get.toNamed('/home');
     } catch (e) {
       print(e);
     }

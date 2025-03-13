@@ -23,10 +23,10 @@ class PatrolView extends GetView<PatrolController> {
               padding: const EdgeInsets.all(8.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: _themeController.isDarkMode.value ? Colors.grey[800] : Colors.grey[200], // Background color
-                  borderRadius: BorderRadius.circular(12), // Set the radius here
+                  color: _themeController.isDarkMode.value ? Colors.grey[800] : Colors.grey[300], 
+                  borderRadius: BorderRadius.circular(12), 
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 12), // Optional: Adds inner padding
+                padding: EdgeInsets.symmetric(horizontal: 12), 
                 child: TextField(
                   style: TextStyle(
                     color: _themeController.isDarkMode.value ? Colors.white : Colors.black,

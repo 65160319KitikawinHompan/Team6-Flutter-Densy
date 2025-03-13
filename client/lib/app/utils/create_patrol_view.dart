@@ -267,7 +267,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                     width: double.infinity,
                     padding: EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color:  _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
+                      color: _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(

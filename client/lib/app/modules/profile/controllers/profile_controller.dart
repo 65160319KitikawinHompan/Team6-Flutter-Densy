@@ -11,6 +11,7 @@ class ProfileController extends GetxController {
   final TextEditingController ageController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
 
   @override
   void onInit() {
@@ -70,8 +71,12 @@ class ProfileController extends GetxController {
   }
 
   Future<void> updateProfile() async {
+    if (!formKey.currentState!.validate()) {
+      return; 
+    }
+
     try {
-       final box = GetStorage();
+      final box = GetStorage();
       String? accessToken = box.read('token');
       int userId = box.read('userId');
 
@@ -79,7 +84,7 @@ class ProfileController extends GetxController {
         print("Error: Access Token is missing.");
         return;
       }
-
+      
       var response = await dio.put(
         "http://localhost:4000/api/user/$userId",
         data: {
@@ -95,7 +100,6 @@ class ProfileController extends GetxController {
           },
         )
       );
-      print("profile : ${nameController.text} \n ${emailController.text} \n ${ageController.text} \n ${phoneController.text} \n ${addressController.text}");
       if (response.statusCode == 200) {
         Get.back();
         Get.snackbar("Success", "Update Profile Successful");
@@ -106,4 +110,6 @@ class ProfileController extends GetxController {
       Get.snackbar("Fail to Update", "Update Profile failed : Invalid Input Data");
     }
   }
+
+
 }

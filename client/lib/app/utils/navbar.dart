@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 class CustomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    bool isPatrolView = ModalRoute.of(context)?.settings.name == '/patrolView';
+    bool isPatrolView = ModalRoute.of(context)?.settings.name == '/patrol';
     final ThemeController _themeController = Get.put(ThemeController());
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -29,12 +29,12 @@ class CustomNavBar extends StatelessWidget {
         children: [
           GestureDetector(
              onTap: () {
-              Get.to(() => const PatrolView());
+              Get.toNamed('/patrol');
             },
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isPatrolView ? Colors.transparent : Colors.grey[300], 
+                color: isPatrolView ? Colors.grey[300] : Colors.transparent, 
               ),
               padding: EdgeInsets.all(12),
               child: Icon(Icons.home_outlined, size: 32, color: _themeController.isDarkMode.value ? Colors.white : Colors.black87),
@@ -42,7 +42,7 @@ class CustomNavBar extends StatelessWidget {
           ),
           GestureDetector(
              onTap: () {
-              Get.to(() => const SettingView());
+              Get.toNamed('/setting');
             },
             child: Container(
               decoration: BoxDecoration(

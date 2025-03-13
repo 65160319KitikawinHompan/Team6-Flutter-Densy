@@ -49,7 +49,7 @@ class SettingView extends GetView<SettingController> {
               SizedBox(height: 16),
               GestureDetector(
                 onTap: () {
-                  Get.to(ProfileView());
+                   Get.toNamed('/profile');
                 },
                 child: Obx(() {
                   return Container(
