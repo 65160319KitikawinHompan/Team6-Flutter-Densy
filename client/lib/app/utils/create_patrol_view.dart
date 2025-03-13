@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
 import 'package:flutter_densy_project/app/modules/patrol/controllers/patrol_controller.dart';
 import 'package:get/get.dart';
 
@@ -6,7 +7,7 @@ String? selectedPreset;
 DateTime selectedDate = DateTime.now();
 late List<dynamic> presetChecklists;
 int? selectedPresetId;
-
+final ThemeController _themeController = Get.put(ThemeController());
 
 class PatrolPresetPage extends StatefulWidget {
   @override
@@ -47,13 +48,13 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: _themeController.isDarkMode.value ? Colors.grey[900] : Colors.grey[100],
       body: Center(
         child: Container(
           margin: EdgeInsets.all(20),
           padding: EdgeInsets.all(45),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: _themeController.isDarkMode.value ? Colors.grey[800] : Colors.grey[200],
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -69,7 +70,7 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
             children: [
               Text(
                 "Patrol Preset",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: _themeController.isDarkMode.value ? Colors.white : Colors.black87),
               ),
               Text(
                 "Please select a preset for the patrol",
@@ -98,13 +99,13 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
                           padding: EdgeInsets.all(16),
                           margin: EdgeInsets.symmetric(vertical: 4),
                           decoration: BoxDecoration(
-                            color: selectedPreset == preset["title"] ? Colors.grey[850] : Colors.grey[300],
+                            color: selectedPreset == preset["title"] ? _themeController.isDarkMode.value ? Colors.blue : Colors.blue : _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Center(
                             child: Text(
                               preset["title"],
-                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: selectedPreset == preset["title"] ? Colors.white : Colors.grey[850],),
+                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: selectedPreset == preset["title"] ? _themeController.isDarkMode.value ? Colors.black87 : Colors.white : _themeController.isDarkMode.value ? Colors.white : Colors.grey[850]),
                             ),
                           )
                         ),
@@ -126,18 +127,18 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
                   width: double.infinity,
                   padding: EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 18),
+                      Icon(Icons.calendar_today, size: 18, color: _themeController.isDarkMode.value ? Colors.white : Colors.black),
                       SizedBox(width: 8),
                       Text(
                         "${selectedDate.day.toString().padLeft(2, '0')}/"
                         "${selectedDate.month.toString().padLeft(2, '0')}/"
                         "${selectedDate.year}",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(fontSize: 20, color: _themeController.isDarkMode.value ? Colors.white : Colors.black),
                       ),
                     ],
                   ),
@@ -150,14 +151,14 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
                   IconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: Icon(Icons.arrow_back, size: 20),
-                    color: Colors.black,
+                    color: _themeController.isDarkMode.value ? Colors.white : Colors.black,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black,
+                      backgroundColor: _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
+                      foregroundColor: _themeController.isDarkMode.value ? Colors.white : Colors.black,
                       minimumSize: Size(85, 45), 
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
-                        side: const BorderSide(color: Color.fromARGB(255, 255, 255, 255)), 
+                        side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white), 
                       ),
                     ),
                   ),
@@ -171,11 +172,11 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
+                      foregroundColor: _themeController.isDarkMode.value ? Colors.white : Colors.black,
                       minimumSize: Size(165, 50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
-                        side: const BorderSide(color: Colors.grey),
+                        side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white),
                       ),
                     ),
                     child: Row(
@@ -183,12 +184,12 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
                       children: [
                         Text(
                           "Next",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color:  _themeController.isDarkMode.value ? Colors.black : Colors.white),
                         ),
                         SizedBox(width: 8), 
                         Icon(
                           Icons.arrow_forward,
-                          color: Colors.white,
+                          color: _themeController.isDarkMode.value ? Colors.black : Colors.white,
                           size: 20,
                         ),
                       ],
@@ -221,7 +222,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
     checklists = presetChecklists
       .map<Map<String, dynamic>>((checklist) => {
         'id': checklist['checklistId'],   
-        'title':  checklist['checklist']['title'],
+        'title': checklist['checklist']['title'],
       }).cast<Map<String, dynamic>>()
     .toList();  
   }
@@ -229,7 +230,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: _themeController.isDarkMode.value ? Colors.grey[900] : Colors.grey[100],
       body: Center(
         child:  SingleChildScrollView( 
           child: Center(
@@ -237,7 +238,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
               margin: EdgeInsets.all(20),
               padding: EdgeInsets.all(45),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: _themeController.isDarkMode.value ? Colors.grey[800] : Colors.grey[200],
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -253,31 +254,31 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                 children: [
                   Text(
                     "Patrol Preset",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: _themeController.isDarkMode.value ? Colors.white : Colors.black),
                   ),
                   Text(
                     "Please select a preset for the patrol",
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   SizedBox(height: 16),
-                  Text("Date", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  Text("Date", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: _themeController.isDarkMode.value ? Colors.white : Colors.black)),
                   SizedBox(height: 8),
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_today, size: 18),
+                        Icon(Icons.calendar_today, size: 18, color: _themeController.isDarkMode.value ? Colors.white : Colors.black),
                         SizedBox(width: 8),
                         Text(
                           "${selectedDate.day.toString().padLeft(2, '0')}/"
                           "${selectedDate.month.toString().padLeft(2, '0')}/"
                           "${selectedDate.year}",
-                          style: TextStyle(fontSize: 20),
+                          style: TextStyle(fontSize: 20, color: _themeController.isDarkMode.value ? Colors.white : Colors.black),
                         ),
                       ],
                     ),
@@ -299,7 +300,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                                   padding: EdgeInsets.all(16),
                                   margin: EdgeInsets.symmetric(vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey[300],
+                                    color:  _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Column(
@@ -307,7 +308,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                                     children: [
                                       Text(
                                         checklist["title"],
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey[850]),
+                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: _themeController.isDarkMode.value ? Colors.white : Colors.black),
                                       ),
                                       SizedBox(height: 8),
                                       Container(
@@ -315,7 +316,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                                         padding: EdgeInsets.all(8),
                                         margin: EdgeInsets.symmetric(vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: _themeController.isDarkMode.value ? Colors.grey[900] : Colors.grey[200],
                                           borderRadius: BorderRadius.circular(10),
                                         ),
                                         child: Row(
@@ -330,7 +331,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                                               if (controller.userData.isNotEmpty) {
                                                 return Text(
                                                   controller.userData["profile"]["name"]?.toString() ?? "Unknown",
-                                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _themeController.isDarkMode.value ? Colors.white : Colors.black87),
                                                 );
                                               } else {
                                                 return Text("No User Data", style: TextStyle(fontSize: 16, color: Colors.red));
@@ -357,14 +358,14 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                       IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: Icon(Icons.arrow_back, size: 20),
-                        color: Colors.black,
+                        color: _themeController.isDarkMode.value ? Colors.white : Colors.black,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[300],
-                          foregroundColor: Colors.black,
+                          backgroundColor: _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
+                          foregroundColor: _themeController.isDarkMode.value ? Colors.white : Colors.black,
                           minimumSize: Size(85, 45), 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(color: Color.fromARGB(255, 255, 255, 255)), 
+                            side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white), 
                           ),
                         ),
                       ),
@@ -385,15 +386,15 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                           
                           Get.offAllNamed('/patrol');
                         },
-                        icon: Icon(Icons.note_add_outlined, color: Colors.white, size: 24),
+                        icon: Icon(Icons.note_add_outlined, color: _themeController.isDarkMode.value ? Colors.black : Colors.white, size: 24),
                         label: Text("New Patrol", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
+                          foregroundColor: _themeController.isDarkMode.value ? Colors.black : Colors.white,
                           minimumSize: Size(85, 50), 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(color: Colors.grey), 
+                            side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white), 
                           ),
                         ),
                       ),

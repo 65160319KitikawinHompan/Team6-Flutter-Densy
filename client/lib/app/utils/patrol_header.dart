@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
 import 'package:flutter_densy_project/app/modules/patrol/controllers/patrol_controller.dart';
 import 'package:get/get.dart';
 
@@ -9,7 +10,7 @@ class PatrolHeader extends StatefulWidget {
 
 class _PatrolHeaderState extends State<PatrolHeader> {
   final controller = Get.find<PatrolController>();
-
+  final ThemeController _themeController = Get.put(ThemeController());
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -30,6 +31,14 @@ class _PatrolHeaderState extends State<PatrolHeader> {
           bottomLeft: Radius.circular(100),
           bottomRight: Radius.circular(100),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -40,7 +49,7 @@ class _PatrolHeaderState extends State<PatrolHeader> {
               width: MediaQuery.of(context).size.width * 0.7, 
               height: 60,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: _themeController.isDarkMode.value ? Colors.grey[900] : Colors.grey[100],
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
@@ -62,7 +71,7 @@ class _PatrolHeaderState extends State<PatrolHeader> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: controller.userData.isNotEmpty
-                            ? Colors.black87
+                            ? _themeController.isDarkMode.value ? Colors.white : Colors.black
                             : Colors.red,
                       ),
                     );

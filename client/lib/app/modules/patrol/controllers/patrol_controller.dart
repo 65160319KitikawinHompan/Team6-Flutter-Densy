@@ -16,7 +16,6 @@ class PatrolController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print("PatrolController initialized");
     fetchPatrolData();
     fetchPresetData();
     fetchUserData();
@@ -25,19 +24,17 @@ class PatrolController extends GetxController {
   void searchPatrols(String query) {
     searchText.value = query.toLowerCase(); 
 
-  if (query.isEmpty) {
-    filteredPatrols.assignAll(patrolsData); // Reset คำ Searh ให้ว่างเปล่า
-  } else {
-    filteredPatrols.value = patrolsData.where((patrol) {
-      final title = patrol['preset']['title'].toString().toLowerCase();
-      final status = patrol['status'].toString().toLowerCase();
-      final date = patrol['date'].toString().toLowerCase();
+    if (query.isEmpty) {
+      filteredPatrols.assignAll(patrolsData); // Reset คำ Searh ให้ว่างเปล่า
+    } else {
+      filteredPatrols.value = patrolsData.where((patrol) {
+        final title = patrol['preset']['title'].toString().toLowerCase();
+        final status = patrol['status'].toString().toLowerCase();
+        final date = patrol['date'].toString().toLowerCase();
 
-      return title.contains(searchText.value) || status.contains(searchText.value) || date.contains(searchText.value);
-    }).toList();
-  }
-    print("filter : ${filteredPatrols.value}");
-     print("user : ${userData['profile']['image']['path']}");
+        return title.contains(searchText.value) || status.contains(searchText.value) || date.contains(searchText.value);
+      }).toList();
+    }
   }
 
   Future<void> fetchUserData() async {
@@ -127,16 +124,6 @@ class PatrolController extends GetxController {
       }
     } catch (e) {
       print("Fetch Error: $e");
-    }
-  }
-
-  Future<void> logout() async {
-    try {
-      var response = await dio.post("http://localhost:4000/api/logout");
-      print("Logout Successfully");
-      Get.offAllNamed(Routes.HOME);
-    } catch (e) {
-      print(e);
     }
   }
 
