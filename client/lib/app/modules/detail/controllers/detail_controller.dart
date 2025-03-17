@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:get_storage/get_storage.dart';
 
 class DetailController extends GetxController {
   var patrolDetail = {}.obs; // เก็บข้อมูลของ Patrol ที่ถูกเลือก
@@ -7,26 +8,33 @@ class DetailController extends GetxController {
 
   @override
   void onInit() {
+    print("DetailController initialized");
     super.onInit();
     fetchPatrolDetail();
   }
 
   Future<void> fetchPatrolDetail() async {
-  final patrolId = Get.parameters['id'];  // ✅ ดึงจาก URL
-  if (patrolId == null) {
-    print("Error: No Patrol ID provided.");
-    return;
-  }
+  final patrolId = Get.parameters['id'];
+  final box = GetStorage();
+  String? accessToken = box.read('token');
+  print("Fetching patrol detail for ID: $patrolId");
+  if (patrolId == null) return;
 
   try {
-    var response = await dio.get("http://localhost:4000/api/patrols/$patrolId");
-    if (response.statusCode == 200) {
-      patrolDetail.value = response.data;
-    } else {
-      print("Error: ${response.statusCode}");
-    }
+    var response = await dio.get("http://localhost:4000/api/patrol/$patrolId",
+      queryParameters: {
+        "result": "true"
+      },
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      ),
+    );
+    print("API Response: ${response.data}");
+    patrolDetail.value = response.data;
   } catch (e) {
-    print("Fetch Detail Error: $e");
+    print("Error fetching patrol detail: $e");
   }
 }
 

@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/modules/detail/controllers/detail_controller.dart';
 import 'package:get/get.dart';
 import 'package:flutter_densy_project/app/utils/navbar.dart';
 import 'package:flutter_densy_project/app/utils/detail_tabbar.dart'; // Import ไฟล์ที่สร้าง
 
-class DetailView extends StatefulWidget {
+class DetailView extends GetView<DetailController> {
   const DetailView({super.key});
 
-  @override
-  _DetailViewState createState() => _DetailViewState();
-}
-
-class _DetailViewState extends State<DetailView> {
   @override
   Widget build(BuildContext context) {
     final patrol = Get.arguments; // รับข้อมูลจากหน้า PatrolView
@@ -39,8 +35,8 @@ class _DetailViewState extends State<DetailView> {
               children: [
                 // TabBar ชิดซ้าย
                 DetailTabBar(
-                  onTabChanged: (index) {
-                    setState(() {});
+                  onTabChanged: (_) {
+                 
                   },
                 ),
 
@@ -77,15 +73,57 @@ class _DetailViewState extends State<DetailView> {
                 ),
               ],
             ),
+            const SizedBox(height: 16),
 
-            const Spacer(),
+            // Checklist Card + Item Card
+            Expanded(
+              child: Obx(() {
+                if (controller.patrolDetail.isEmpty) {
+                  return const Center(child: Text("No data available"));
+                }
 
+                final checklists = controller.patrolDetail["patrolChecklists"] ?? [];
+
+                return ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: checklists.length,
+                  itemBuilder: (context, index) {
+                    final checklist = checklists[index];
+                    final inspector = checklist["inspector"] ?? {};
+                    final inspectorName = inspector["profile"]?["name"] ?? "Unknown Inspector";
+                    final inspectorImage = inspector["profile"]?["image"] != null
+                        ? "http://localhost:4000/uploads/${inspector["profile"]["image"]["path"]}"
+                        : "https://i.pravatar.cc/300";
+
+                    return ChecklistCard(
+                      title: checklist["checklist"]["title"] ?? "Untitled Checklist",
+                      inspectorName: inspectorName,
+                      inspectorImage: inspectorImage,
+                      children: _buildItemCards(checklist["checklist"]["items"] ?? []),
+                      statusColor: _getStatusColor(patrol["status"]),
+                    );
+                  },
+                );
+              }),
+            ),
+
+            // NavBar ด้านล่าง
             CustomNavBar(),
           ],
         ),
       ),
     );
   }
+
+  List<Widget> _buildItemCards(List<dynamic> items) {
+    return items.map((item) {
+      return ItemCard(
+        title: item["name"] ?? "Unnamed Item",
+        type: item["type"] ?? "Unknown Type",
+      );
+    }).toList();
+  }
+
 
   // ✅ ฟังก์ชันสร้างปุ่ม Start
   Widget _buildStartButton() {
