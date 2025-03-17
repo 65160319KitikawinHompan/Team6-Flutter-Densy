@@ -12,22 +12,22 @@ class DetailController extends GetxController {
   }
 
   Future<void> fetchPatrolDetail() async {
-  final patrolId = Get.parameters['id'];  // ✅ ดึงจาก URL
-  if (patrolId == null) {
-    print("Error: No Patrol ID provided.");
-    return;
-  }
-
-  try {
-    var response = await dio.get("http://localhost:4000/api/patrols/$patrolId");
-    if (response.statusCode == 200) {
-      patrolDetail.value = response.data;
-    } else {
-      print("Error: ${response.statusCode}");
+    final patrolId = Get.parameters['id']; // ✅ ดึงจาก URL
+    if (patrolId == null) {
+      print("Error: No Patrol ID provided.");
+      return;
     }
-  } catch (e) {
-    print("Fetch Detail Error: $e");
-  }
-}
 
+    try {
+      var response =
+          await dio.get("http://localhost:4000/api/patrols/$patrolId");
+      if (response.statusCode == 200) {
+        patrolDetail.value = response.data;
+      } else {
+        print("Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Fetch Detail Error: $e");
+    }
+  }
 }
