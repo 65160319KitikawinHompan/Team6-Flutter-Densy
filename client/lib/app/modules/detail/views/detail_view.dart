@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_densy_project/app/modules/detail/controllers/detail_controller.dart';
 import 'package:get/get.dart';
 import 'package:flutter_densy_project/app/utils/navbar.dart';
-import 'package:flutter_densy_project/app/utils/detail_tabbar.dart'; // Import ไฟล์ที่สร้าง
+import 'package:flutter_densy_project/app/utils/detail_tabbar.dart';
+import 'package:flutter_densy_project/app/utils/checklist_card.dart';
+import 'package:flutter_densy_project/app/utils/item_card.dart';
 
 class DetailView extends GetView<DetailController> {
   const DetailView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final patrol = Get.arguments; // รับข้อมูลจากหน้า PatrolView
+    final patrol = Get.arguments; // ข้อมูลจากหน้า PatrolView
 
     return Scaffold(
       body: Padding(
@@ -18,53 +20,47 @@ class DetailView extends GetView<DetailController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            // ชื่อของ Patrol
+
+            // ชื่อ Patrol
             Text(
               patrol["preset"]["title"],
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
 
-            // สถานะ (ใช้สีเดียวกับ patrol_card)
+            // สถานะ
             _buildStatusBadge(patrol["status"]),
-
             const SizedBox(height: 12),
 
-            // TabBar + Start Button (ไม่ให้ขยายเกินขนาดจริง)
+            // แสดง TabBar กับปุ่ม Start
             Row(
               children: [
-                // TabBar ชิดซ้าย
                 DetailTabBar(
                   onTabChanged: (_) {
                  
                   },
                 ),
-
-                // ใช้ Spacer() แทน Expanded เพื่อให้ดันปุ่ม Start ไปชิดขวา
                 const Spacer(),
-
-                // ปุ่ม Start (ตั้งค่าให้สูงเท่ากับ TabBar)
                 Padding(
-                  padding:
-                      const EdgeInsets.only(right: 0), // ระยะห่างจากขอบขวา
+                  padding: const EdgeInsets.only(right: 0),
                   child: SizedBox(
                     height: 48,
-                    width: 100, // กำหนดความสูงให้เท่ากับ TabBar
+                    width: 100,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        // ทำสิ่งที่ต้องการเมื่อกดปุ่ม Start
-                      },
-                      icon: const Icon(Icons.autorenew,
-                          color: Colors.white, size: 18),
-                      label: const Text("Start",
-                          style: TextStyle(color: Colors.white,fontSize: 16, fontWeight: FontWeight.bold)),
-                          
+                      onPressed: () {},
+                      icon: const Icon(Icons.autorenew, color: Colors.white, size: 18),
+                      label: const Text(
+                        "Start",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFF3B82F6), // สีฟ้า Primary
+                        backgroundColor: const Color(0xFF3B82F6),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(24), // ให้โค้งเหมือน TabBar
+                          borderRadius: BorderRadius.circular(24),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
@@ -125,29 +121,17 @@ class DetailView extends GetView<DetailController> {
   }
 
 
-  // ✅ ฟังก์ชันสร้างปุ่ม Start
-  Widget _buildStartButton() {
-    return ElevatedButton.icon(
-      onPressed: () {
-        // กำหนดให้ทำอะไรเมื่อกด Start
-      },
-      icon: const Icon(Icons.autorenew, color: Colors.white),
-      label: const Text(
-        "Start",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF3B82F6), // สีฟ้า Primary
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
-    );
+  List<Widget> _buildItemCards(List<dynamic> items) {
+    return items.map((item) {
+      return ItemCard(
+        title: item["name"] ?? "Unnamed Item",
+        type: item["type"] ?? "Unknown Type",
+      );
+    }).toList();
   }
 
-  // ✅ ฟังก์ชันสร้าง Badge สถานะ
+
+  // สร้าง Badge สถานะ
   Widget _buildStatusBadge(String status) {
     String formattedStatus = _capitalizeFirstLetter(status);
     Color bgColor = _getStatusColor(status).withOpacity(0.2);
@@ -168,7 +152,10 @@ class DetailView extends GetView<DetailController> {
           Text(
             formattedStatus,
             style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.bold, color: textColor),
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
           ),
         ],
       ),
