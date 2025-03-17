@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
-import 'package:flutter_densy_project/app/modules/patrol/views/patrol_view.dart';
-import 'package:flutter_densy_project/app/modules/setting/views/setting_view.dart';
+
 import 'package:get/get.dart';
 
 class CustomNavBar extends StatelessWidget {
