@@ -11,82 +11,84 @@ class DetailView extends GetView<DetailController> {
 
   @override
   Widget build(BuildContext context) {
-    final patrol = Get.arguments; // ข้อมูลจากหน้า PatrolView
-
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
+      body: Obx(() {
+        if (controller.patrolDetail.isEmpty || controller.presetsData.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-            // ชื่อ Patrol
-            Text(
-              patrol["preset"]["title"],
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
 
-            // สถานะ
-            _buildStatusBadge(patrol["status"]),
-            const SizedBox(height: 12),
+              // Patrol Name
+              Text(
+                controller.presetsData["title"] ?? "No Title",
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
 
-            // แสดง TabBar กับปุ่ม Start
-            Row(
-              children: [
-                DetailTabBar(
-                  onTabChanged: (_) {
-                 
-                  },
-                ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(right: 0),
-                  child: SizedBox(
-                    height: 48,
-                    width: 100,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        controller.startPatrolDetail();
-                      },
-                      icon: const Icon(Icons.autorenew, color: Colors.white, size: 18),
-                      label: const Text(
-                        "Start",
-                        style: TextStyle(
+              // Status Badge
+              _buildStatusBadge(controller.patrolDetail["status"] ?? ""),
+              const SizedBox(height: 12),
+
+              // TabBar and Start Button
+              Row(
+                children: [
+                  DetailTabBar(
+                    onTabChanged: (_) {},
+                  ),
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: SizedBox(
+                      height: 48,
+                      width: 100,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (controller.patrolDetail["status"] == "scheduled") {
+                            controller.startPatrolDetail();
+                          } else  if (controller.patrolDetail["status"] == "on_going") {
+                            controller.finishPatrolDetail();
+                          }
+                        },
+                        icon: Icon(
+                          _getButtonIcon(controller.patrolDetail["status"] ?? ""),
                           color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          size: 18,
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3B82F6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
+                        label: Text(
+                          _getButtonText(controller.patrolDetail["status"] ?? ""),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _getButtonColor(controller.patrolDetail["status"] ?? ""),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+                ],
+              ),
+              const SizedBox(height: 16),
 
-            // Checklist Card + Item Card
-            Expanded(
-              child: Obx(() {
-                if (controller.patrolDetail.isEmpty) {
-                  return const Center(child: Text("No data available"));
-                }
-
-                final checklists = controller.patrolDetail["patrolChecklists"] ?? [];
-
-                return ListView.builder(
+              // Checklist Card + Item Card
+              Expanded(
+                child: ListView.builder(
                   padding: EdgeInsets.zero,
-                  itemCount: checklists.length,
+                  itemCount: controller.patrolDetail["patrolChecklists"]?.length ?? 0,
                   itemBuilder: (context, index) {
-                    final checklist = checklists[index];
+                    final checklist = controller.patrolDetail["patrolChecklists"]?[index];
                     final inspector = checklist["inspector"] ?? {};
                     final inspectorName = inspector["profile"]?["name"] ?? "Unknown Inspector";
                     final inspectorImage = inspector["profile"]?["image"] != null
@@ -97,51 +99,72 @@ class DetailView extends GetView<DetailController> {
                       title: checklist["checklist"]["title"] ?? "Untitled Checklist",
                       inspectorName: inspectorName,
                       inspectorImage: inspectorImage,
-                      statusColor: _getStatusColor(patrol["status"]),
-                      children: _buildItemCards(checklist["checklist"]["items"] ?? [], patrol["status"]),
+                      statusColor: _getStatusColor(controller.patrolDetail["status"] ?? ""),
+                      children: _buildItemCards(checklist["checklist"]["items"] ?? [], controller.patrolDetail["status"] ?? ""),
                     );
                   },
-                );
-              }),
-            ),
-
-            // NavBar ด้านล่าง
-            CustomNavBar(),
-          ],
-        ),
-      ),
+                ),
+              ),
+              // NavBar
+              CustomNavBar(),
+            ],
+          ),
+        );
+      }),
     );
   }
 
- List<Widget> _buildItemCards(List<dynamic> items, String patrolStatus) {
+  List<Widget> _buildItemCards(List<dynamic> items, String patrolStatus) {
   return items.map((item) {
     final itemId = item["id"];
-
-    // Safeguard: Ensure patrolDetail["results"] is a list
     final resultList = controller.patrolDetail["results"] as List? ?? [];
-
-    // Now we safely use firstWhere on the resultList
     final result = resultList.firstWhere(
       (resultItem) => resultItem["itemId"] == itemId,
       orElse: () => null,
     );
 
-    // Safely access status: result can be null
-    final status = result != null ? result["status"] : null; 
+    final status = result != null ? result["status"] : null;
+    final patrolResultId = result != null ? result["id"] : null; // Extract patrolResultId
 
-    print("Item ID: $itemId, Status: $status , $patrolStatus");
+    final itemZones = item["itemZones"] ?? [];
+    final zoneId = itemZones.isNotEmpty
+        ? itemZones[0]["zone"]["id"] ?? -1
+        : -1;
+
+    final supervisorId = itemZones.isNotEmpty
+        ? itemZones[0]["zone"]["supervisor"]["id"] ?? -1 // Extract supervisorId
+        : -1;
+
+    final supervisorName = itemZones.isNotEmpty
+        ? itemZones[0]["zone"]["supervisor"]["profile"]["name"] ?? "Unnamed Person"
+        : "Unnamed Person";
+
+    final zoneName = itemZones.isNotEmpty
+        ? itemZones[0]["zone"]["name"]
+            .replaceAll('_', ' ')
+            .split(' ')
+            .map((word) => word[0].toUpperCase() + word.substring(1))
+            .join(' ')
+        : "Unknown Zone";
 
     return ItemCard(
       title: item["name"] ?? "Unnamed Item",
       type: item["type"] ?? "Unknown Type",
-      hasReult: status ?? null,
+      supervisorName: supervisorName,
+      zoneName: zoneName,
+      hasReult: status,
       patrolStatus: patrolStatus,
+      itemId: itemId,
+      zoneId: zoneId,
+      patrolResultId: patrolResultId ?? 0, 
+      supervisorId: supervisorId, 
+      onSelectionChanged: (itemId, zoneId, status) {
+        controller.updateResultStatus(itemId, zoneId, status);
+      },
     );
   }).toList();
 }
 
-
-  // สร้าง Badge สถานะ
   Widget _buildStatusBadge(String status) {
     String formattedStatus = _capitalizeFirstLetter(status);
     Color bgColor = _getStatusColor(status).withOpacity(0.2);
@@ -204,6 +227,64 @@ class DetailView extends GetView<DetailController> {
         return Icons.check;
       default:
         return Icons.info;
+    }
+  }
+
+  IconData _getButtonIcon (String status) {
+    switch (status.toLowerCase()) {
+      case 'scheduled':
+        return Icons.autorenew;
+      case 'on_going':
+        return Icons.save_outlined;
+      case 'pending':
+        return Icons.remove_red_eye_outlined;
+      case 'completed':
+        return Icons.remove_red_eye_outlined;
+      default:
+        return Icons.info;
+    }
+  }
+
+  Color _getButtonColor (String status) {
+    switch (status.toLowerCase()) {
+       case 'scheduled':
+        return const Color(0xFF8B5CF6);
+      case 'on_going':
+        return const Color(0xFF8B5CF6);
+      case 'pending':
+        return Colors.green;
+      case 'completed':
+        return Colors.green;
+      default:
+        return Colors.green;
+    }
+  }
+
+  String _getButtonText (String status) {
+    switch (status.toLowerCase()) {
+       case 'scheduled':
+        return "Start";
+      case 'on_going':
+        return "Save";
+      case 'pending':
+        return "View";
+      case 'completed':
+        return "View";
+      default:
+        return "Default";
+    }
+  } 
+
+  void _updateResultStatus(int itemId, int zoneId, bool status) {
+    final results = controller.patrolDetail["results"] as List? ?? [];
+    
+    final resultIndex = results.indexWhere(
+      (result) => result["itemId"] == itemId && result["zoneId"] == zoneId,
+    );
+
+    if (resultIndex != -1) {
+      controller.patrolDetail["results"][resultIndex]["status"] = status;
+      controller.patrolDetail.refresh(); // Notify UI of changes
     }
   }
 }

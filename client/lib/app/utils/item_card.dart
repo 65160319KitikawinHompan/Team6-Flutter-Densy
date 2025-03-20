@@ -1,18 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/modules/detail/controllers/detail_controller.dart';
 import 'package:flutter_densy_project/app/utils/yes_no_button.dart';
+import 'package:get/get.dart';
 
 class ItemCard extends StatefulWidget {
   final String title;
   final String type;
+  final String supervisorName;
+  final String zoneName;
   final bool? hasReult;
   final String patrolStatus;
+  final int itemId; 
+  final int zoneId; 
+  final Function(int itemId, int zoneId, bool status)? onSelectionChanged;
+  final int patrolResultId;
+  final int supervisorId;
 
   const ItemCard({
     Key? key,
     required this.title,
-    required this.type, 
-    required this.hasReult, 
+    required this.type,
+    required this.hasReult,
     required this.patrolStatus,
+    required this.itemId,
+    required this.zoneId,
+    this.onSelectionChanged,
+    required this.supervisorName,
+    required this.zoneName, 
+    required this.patrolResultId, 
+    required this.supervisorId,
   }) : super(key: key);
 
   @override
@@ -21,6 +37,27 @@ class ItemCard extends StatefulWidget {
 
 class _ItemCardState extends State<ItemCard> {
   bool isExpanded = false;
+  final TextEditingController _commentController = TextEditingController();
+  String? _selected; 
+  final controller = Get.find<DetailController>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the selection based on hasResult
+    if (widget.hasReult != null) {
+      _selected = widget.hasReult == true ? "yes" : "no";
+
+    } else {
+      _selected = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose(); // Dispose the controller
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +66,6 @@ class _ItemCardState extends State<ItemCard> {
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.only(left: 3, top: 0, right: 16, bottom: 0),
-      // ^^^ ปรับ left ตามที่เคยตั้งไว้ (เช่น 3 หรือ 8) เพื่อให้อยู่แนวเดียวกับ Checklist
       decoration: const BoxDecoration(
         color: Colors.transparent,
       ),
@@ -110,7 +146,6 @@ class _ItemCardState extends State<ItemCard> {
             // กรอบสี่เหลี่ยมสีดำ (Zone + Supervisor)
             Container(
               width: 307,
-              height: 132,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color(0xFF333840),
@@ -138,9 +173,9 @@ class _ItemCardState extends State<ItemCard> {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const Text(
-                        'RAW MATERIALS STORAGE',
-                        style: TextStyle(
+                      Text(
+                        widget.zoneName,
+                        style: const TextStyle(
                           fontFamily: 'Manrope',
                           fontWeight: FontWeight.normal, // regular
                           fontSize: 16,
@@ -181,9 +216,9 @@ class _ItemCardState extends State<ItemCard> {
                       ),
                       const SizedBox(width: 6),
 
-                      const Text(
-                        'Michael Johnson',
-                        style: TextStyle(
+                      Text(
+                        widget.supervisorName,
+                        style: const TextStyle(
                           fontFamily: 'Manrope',
                           fontWeight: FontWeight.normal,
                           fontSize: 16,
@@ -193,7 +228,49 @@ class _ItemCardState extends State<ItemCard> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  YesNoButtonGroup(hasResult: widget.hasReult, patrolStatus: widget.patrolStatus)
+                  YesNoButtonGroup(
+                    hasResult: widget.hasReult,
+                    patrolStatus: widget.patrolStatus,
+                    itemId: widget.itemId, 
+                    zoneId: widget.zoneId, 
+                    onSelectionChanged: (itemId, zoneId, status) {
+                      setState(() {
+                        _selected = status ? "yes" : "no"; 
+                      });
+                      widget.onSelectionChanged?.call(itemId, zoneId, status); 
+                    },
+                  ),
+                  const SizedBox(height: 6),
+                  if (_selected == "no")
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end, 
+                      children: [
+                        TextFormField(
+                          controller: _commentController,
+                          decoration: const InputDecoration(
+                            hintText: "Enter your comment...",
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          maxLines: 2,
+                        ),
+                        const SizedBox(height: 10), 
+                        ElevatedButton(
+                          onPressed: () {
+                            final comment = _commentController.text.trim();
+                            if (comment.isNotEmpty) {
+                              controller.postComment(_commentController.text, widget.patrolResultId, widget.supervisorId);
+                              _commentController.clear();
+                            } 
+                          },
+                          child: const Text("Send"),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),

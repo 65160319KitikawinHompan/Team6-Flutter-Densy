@@ -3,11 +3,17 @@ import 'package:flutter/material.dart';
 class YesNoButtonGroup extends StatefulWidget {
   final bool? hasResult;
   final String patrolStatus;
+  final int itemId; 
+  final int zoneId; 
+  final Function(int itemId, int zoneId, bool status)? onSelectionChanged; 
 
   const YesNoButtonGroup({
     Key? key, 
     required this.hasResult, 
-    required this.patrolStatus
+    required this.patrolStatus, 
+    required this.itemId,
+    required this.zoneId,
+    this.onSelectionChanged,
   }) : super(key: key);
 
   @override
@@ -24,7 +30,7 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
     if (widget.hasResult != null) {
       _selected = widget.hasResult == true ? "yes" : "no";
     } else {
-      _selected = null; // Ensure _selected is null if hasReult is null
+      _selected = null; 
     }
   }
 
@@ -42,6 +48,7 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
               setState(() {
                 _selected = "yes";
               });
+              widget.onSelectionChanged?.call(widget.itemId, widget.zoneId, true);
             };
           },
         ),
@@ -55,6 +62,7 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
               setState(() {
                 _selected = "no";
               });
+              widget.onSelectionChanged?.call(widget.itemId, widget.zoneId, false);
             }
           },
         ),

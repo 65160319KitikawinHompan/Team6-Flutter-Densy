@@ -16,7 +16,9 @@ class PatrolView extends GetView<PatrolController> {
 
     return Obx(() {
       return Scaffold(
-        backgroundColor: _themeController.isDarkMode.value ? Colors.grey[900] : Colors.grey[100],
+        backgroundColor: _themeController.isDarkMode.value
+            ? Colors.grey[900]
+            : Colors.grey[100],
         body: Column(
           children: [
             /// ส่วนหัวแบบไล่สี
@@ -110,7 +112,7 @@ class PatrolView extends GetView<PatrolController> {
                     ),
 
                     /// เพิ่ม PatrolListView แบบตรงไปตรงมาใน Wrap เดียวกัน
-                    ...controller.filteredPatrols.map((patrol) {
+                    ...controller.patrolsData.map((patrol) {
                       final status = patrol["status"] as String;
                       final date = DateTime.parse(patrol["date"]);
                       final presetTitle = patrol["preset"]["title"] as String;
@@ -126,8 +128,6 @@ class PatrolView extends GetView<PatrolController> {
                         onTap: () {
                           Get.toNamed(
                             '/patrol/detail/${patrol["id"]}',
-                            arguments:
-                                patrol, // ส่งข้อมูล patrol ที่ถูกเลือกไปยังหน้า DetailView
                           );
                         },
                         child: PatrolCard(

@@ -89,7 +89,7 @@ class PatrolController extends GetxController {
 
       if (response.statusCode == 200) {
         patrolsData.value = response.data; 
-         filteredPatrols.assignAll(patrolsData);
+        filteredPatrols.assignAll(patrolsData);
       } else {
         print("Error: Unexpected status code ${response.statusCode}");
       }
