@@ -15,21 +15,22 @@ class _PatrolHeaderState extends State<PatrolHeader> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 160, 
+      height: 160,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+          begin: Alignment.topCenter, 
+          end: Alignment.bottomCenter, 
           colors: <Color>[
-            Color.fromARGB(255, 233, 0, 136),
-            Color.fromARGB(255, 197, 37, 162),
-            Color.fromARGB(255, 121, 0, 99),
+            Color(0xFFEF4444), 
+            Color(0xFF9747FF), 
           ],
-          tileMode: TileMode.mirror,
+          stops: [0.0, 1.0], 
+          tileMode: TileMode.clamp,
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(100),
           bottomRight: Radius.circular(100),
+          
         ),
         boxShadow: [
           BoxShadow(
@@ -46,10 +47,12 @@ class _PatrolHeaderState extends State<PatrolHeader> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: MediaQuery.of(context).size.width * 0.7, 
+              width: MediaQuery.of(context).size.width * 0.7,
               height: 60,
               decoration: BoxDecoration(
-                color: _themeController.isDarkMode.value ? Colors.grey[900] : Colors.grey[100],
+                color: _themeController.isDarkMode.value
+                    ? Colors.grey[900]
+                    : Colors.grey[100],
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
@@ -71,7 +74,9 @@ class _PatrolHeaderState extends State<PatrolHeader> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: controller.userData.isNotEmpty
-                            ? _themeController.isDarkMode.value ? Colors.white : Colors.black
+                            ? _themeController.isDarkMode.value
+                                ? Colors.white
+                                : Colors.black
                             : Colors.red,
                       ),
                     );
