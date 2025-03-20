@@ -15,8 +15,8 @@ class PatrolView extends GetView<PatrolController> {
     final ThemeController _themeController = Get.put(ThemeController());
     return Obx(() {
       return Scaffold(
-      backgroundColor: _themeController.isDarkMode.value ? Colors.grey[900] : Colors.grey[100],
-      body: Column(
+        backgroundColor: _themeController.isDarkMode.value ? Colors.grey[900] : Colors.grey[100],
+        body: Column(
           children: [
             PatrolHeader(),
             Padding(

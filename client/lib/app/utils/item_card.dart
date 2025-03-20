@@ -4,11 +4,15 @@ import 'package:flutter_densy_project/app/utils/yes_no_button.dart';
 class ItemCard extends StatefulWidget {
   final String title;
   final String type;
+  final bool? hasReult;
+  final String patrolStatus;
 
   const ItemCard({
     Key? key,
     required this.title,
-    required this.type,
+    required this.type, 
+    required this.hasReult, 
+    required this.patrolStatus,
   }) : super(key: key);
 
   @override
@@ -189,7 +193,7 @@ class _ItemCardState extends State<ItemCard> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  YesNoButtonGroup()
+                  YesNoButtonGroup(hasResult: widget.hasReult, patrolStatus: widget.patrolStatus)
                 ],
               ),
             ),

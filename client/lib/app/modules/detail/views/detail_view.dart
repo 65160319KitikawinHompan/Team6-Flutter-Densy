@@ -47,7 +47,9 @@ class DetailView extends GetView<DetailController> {
                     height: 48,
                     width: 100,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        controller.startPatrolDetail();
+                      },
                       icon: const Icon(Icons.autorenew, color: Colors.white, size: 18),
                       label: const Text(
                         "Start",
@@ -95,8 +97,8 @@ class DetailView extends GetView<DetailController> {
                       title: checklist["checklist"]["title"] ?? "Untitled Checklist",
                       inspectorName: inspectorName,
                       inspectorImage: inspectorImage,
-                      children: _buildItemCards(checklist["checklist"]["items"] ?? []),
                       statusColor: _getStatusColor(patrol["status"]),
+                      children: _buildItemCards(checklist["checklist"]["items"] ?? [], patrol["status"]),
                     );
                   },
                 );
@@ -111,24 +113,32 @@ class DetailView extends GetView<DetailController> {
     );
   }
 
-  List<Widget> _buildItemCards(List<dynamic> items) {
-    return items.map((item) {
-      return ItemCard(
-        title: item["name"] ?? "Unnamed Item",
-        type: item["type"] ?? "Unknown Type",
-      );
-    }).toList();
-  }
+ List<Widget> _buildItemCards(List<dynamic> items, String patrolStatus) {
+  return items.map((item) {
+    final itemId = item["id"];
 
+    // Safeguard: Ensure patrolDetail["results"] is a list
+    final resultList = controller.patrolDetail["results"] as List? ?? [];
 
-  List<Widget> _buildItemCards(List<dynamic> items) {
-    return items.map((item) {
-      return ItemCard(
-        title: item["name"] ?? "Unnamed Item",
-        type: item["type"] ?? "Unknown Type",
-      );
-    }).toList();
-  }
+    // Now we safely use firstWhere on the resultList
+    final result = resultList.firstWhere(
+      (resultItem) => resultItem["itemId"] == itemId,
+      orElse: () => null,
+    );
+
+    // Safely access status: result can be null
+    final status = result != null ? result["status"] : null; 
+
+    print("Item ID: $itemId, Status: $status , $patrolStatus");
+
+    return ItemCard(
+      title: item["name"] ?? "Unnamed Item",
+      type: item["type"] ?? "Unknown Type",
+      hasReult: status ?? null,
+      patrolStatus: patrolStatus,
+    );
+  }).toList();
+}
 
 
   // สร้าง Badge สถานะ

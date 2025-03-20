@@ -5,6 +5,7 @@ class ChecklistCard extends StatefulWidget {
   final String inspectorName;
   final String inspectorImage;
   final List<Widget>? children; 
+  final Color statusColor;
 
   const ChecklistCard({
     Key? key,
@@ -12,6 +13,7 @@ class ChecklistCard extends StatefulWidget {
     required this.inspectorName,
     required this.inspectorImage,
     this.children, 
+    required this.statusColor, 
   }) : super(key: key);
 
   @override
@@ -29,8 +31,8 @@ class _ChecklistCardState extends State<ChecklistCard> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         gradient: isExpanded
-            ? const LinearGradient(
-                colors: [Color(0xFFFFFFFF), Color(0xFFD0BCFF)],
+            ? LinearGradient(
+                colors: [const Color(0xFFFFFFFF), widget.statusColor],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               )
