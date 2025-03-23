@@ -1,15 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
+import 'package:flutter_densy_project/app/modules/detail/controllers/detail_controller.dart';
+import 'package:get/get.dart';
+
+final ThemeController _themeController = Get.put(ThemeController());
 
 class YesNoButtonGroup extends StatefulWidget {
-  const YesNoButtonGroup({Key? key}) : super(key: key);
+  final bool? hasResult;
+  final String patrolStatus;
+  final int itemId; 
+  final int zoneId; 
+  final Function(int itemId, int zoneId, bool status)? onSelectionChanged; 
+  final List<dynamic> comments;
+
+  const YesNoButtonGroup({
+    Key? key, 
+    required this.hasResult, 
+    required this.patrolStatus, 
+    required this.itemId,
+    required this.zoneId,
+    this.onSelectionChanged, 
+    required this.comments,
+  }) : super(key: key);
 
   @override
   _YesNoButtonGroupState createState() => _YesNoButtonGroupState();
 }
 
 class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
-  String?
-      _selected; // เก็บค่าว่า user เลือก "yes" หรือ "no" หรือยังไม่เลือก (null)
+  String? _selected; // เก็บค่าว่า user เลือก "yes" หรือ "no" หรือยังไม่เลือก (null)
+  final controller = Get.find<DetailController>();
+
+  @override
+  void initState() {
+    super.initState();
+    // ตั้งค่าเริ่มต้นตามค่า hasReult
+     if (widget.comments.isNotEmpty) {
+      _selected = "no"; 
+    } else if (widget.hasResult != null) {
+      _selected = widget.hasResult == true ? "yes" : "no";
+    } else {
+      _selected = null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,20 +52,28 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
         _buildButton(
           label: "Yes",
           isSelected: _selected == "yes",
+          patrolStatus: widget.patrolStatus,
           onPressed: () {
-            setState(() {
-              _selected = "yes";
-            });
+            if (widget.patrolStatus == "on_going" && widget.comments.isEmpty) {
+              setState(() {
+                _selected = "yes";
+              });
+              widget.onSelectionChanged?.call(widget.itemId, widget.zoneId, true);
+            };
           },
         ),
         const SizedBox(width: 12), 
         _buildButton(
           label: "No",
           isSelected: _selected == "no",
+          patrolStatus: widget.patrolStatus,
           onPressed: () {
-            setState(() {
-              _selected = "no";
-            });
+            if (widget.patrolStatus == "on_going" || widget.comments.isNotEmpty) {
+              setState(() {
+                _selected = "no";
+              });
+              widget.onSelectionChanged?.call(widget.itemId, widget.zoneId, false);
+            }
           },
         ),
       ],
@@ -43,15 +84,22 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
     required String label,
     required bool isSelected,
     required VoidCallback onPressed,
+    required String patrolStatus,
   }) {
     // กำหนดสีพื้นหลังตามสถานะ
     Color backgroundColor;
-    if (isSelected) {
-      backgroundColor = (label == "Yes") ? Colors.green : Colors.red;
-    } else {
-      backgroundColor = Colors.grey[300]!; 
-    }
+    Color foregroundColor;
 
+  if (patrolStatus == "scheduled") {
+      backgroundColor = Colors.grey[300]!; // Locked state (gray)
+      foregroundColor = Colors.grey[600]!; // Darker gray for text and icon
+    } else if (isSelected) {
+      backgroundColor = (label == "Yes") ? Colors.green : Colors.red; // Selected state
+      foregroundColor = Colors.white; // White text and icon for better contrast
+    } else {
+      backgroundColor = _themeController.isDarkMode.value ? Colors.grey[800]! : Colors.grey[300]!; // Default gray color
+      foregroundColor = const Color(0xFF333840); // Default text and icon color
+    }
     IconData? leadingIcon;
     if (label == "Yes") {
       leadingIcon = Icons.check; 
@@ -74,7 +122,7 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
             fontWeight: FontWeight.w600, 
             fontSize: 18,
           ),
-          foregroundColor: const Color(0xFF333840),
+          foregroundColor: _themeController.isDarkMode.value ? Colors.white : Colors.black87,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

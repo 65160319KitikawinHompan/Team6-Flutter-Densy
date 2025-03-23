@@ -8,6 +8,7 @@ DateTime selectedDate = DateTime.now();
 late List<dynamic> presetChecklists;
 int? selectedPresetId;
 final ThemeController _themeController = Get.put(ThemeController());
+final controller = Get.find<PatrolController>();
 
 class PatrolPresetPage extends StatefulWidget {
   @override
@@ -15,7 +16,6 @@ class PatrolPresetPage extends StatefulWidget {
 }
 
 class _PatrolPresetPageState extends State<PatrolPresetPage> {
-  final controller = Get.find<PatrolController>();
   late List<Map<String, dynamic>> presets;
 
   @override
@@ -212,7 +212,6 @@ class PatrolChecklistPage extends StatefulWidget {
 }
 
 class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
-  final controller = Get.find<PatrolController>();
   late List<Map<String, dynamic>> checklists;
 
   @override
@@ -383,7 +382,6 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                             selectedPresetId!,
                             formattedChecklists,
                           );
-                          
                           Get.offAllNamed('/patrol');
                         },
                         icon: Icon(Icons.note_add_outlined, color: _themeController.isDarkMode.value ? Colors.black : Colors.white, size: 24),

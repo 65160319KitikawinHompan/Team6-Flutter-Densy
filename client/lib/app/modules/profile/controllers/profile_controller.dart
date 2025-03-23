@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/modules/patrol/controllers/patrol_controller.dart';
+import 'package:flutter_densy_project/app/modules/setting/controllers/setting_controller.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -12,6 +14,8 @@ class ProfileController extends GetxController {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  final settingController = Get.find<SettingController>();
+  final patrolController = Get.find<PatrolController>();
 
   @override
   void onInit() {
@@ -101,6 +105,9 @@ class ProfileController extends GetxController {
         )
       );
       if (response.statusCode == 200) {
+        settingController.onInit();
+        patrolController.onInit();
+        
         Get.back();
         Get.snackbar("Success", "Update Profile Successful");
       } else {
@@ -110,6 +117,4 @@ class ProfileController extends GetxController {
       Get.snackbar("Fail to Update", "Update Profile failed : Invalid Input Data");
     }
   }
-
-
 }
