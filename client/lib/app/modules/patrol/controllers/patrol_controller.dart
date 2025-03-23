@@ -9,6 +9,7 @@ class PatrolController extends GetxController {
   var presetsData = <dynamic>[].obs;
   var filteredPatrols = <dynamic>[].obs; 
   var searchText = ''.obs;
+  var userImage = "";
 
   final dio = Dio();
 
@@ -58,6 +59,7 @@ class PatrolController extends GetxController {
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
         userData.value = response.data; 
+        userImage = response.data["profile"]["image"]["path"];
       } else {
         print("Error: Unexpected response format");
       }
@@ -151,7 +153,7 @@ class PatrolController extends GetxController {
           },
         ),
       );
-      onInit();
+      Get.offAllNamed('/patrol');
       Get.snackbar("Success", "Create Patrol Successful");
     } catch (e) {
       print("Error: $e");

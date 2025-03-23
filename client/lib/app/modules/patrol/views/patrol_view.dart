@@ -35,6 +35,7 @@ class PatrolView extends GetView<PatrolController> {
                 ),
                 padding: const EdgeInsets.only(left: 0, right: 12),
                 child: TextField(
+                  onChanged: (query) => controller.searchPatrols(query),
                   style: TextStyle(
                     color: _themeController.isDarkMode.value
                         ? Colors.white
@@ -42,7 +43,6 @@ class PatrolView extends GetView<PatrolController> {
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
-                  onChanged: (query) => controller.searchPatrols(query),
                   decoration: InputDecoration(
                     hintText: "What do you want to search?",
                     hintStyle: TextStyle(
@@ -112,7 +112,7 @@ class PatrolView extends GetView<PatrolController> {
                     ),
 
                     /// เพิ่ม PatrolListView แบบตรงไปตรงมาใน Wrap เดียวกัน
-                    ...controller.patrolsData.map((patrol) {
+                    ...controller.filteredPatrols.map((patrol) {
                       final status = patrol["status"] as String;
                       final date = DateTime.parse(patrol["date"]);
                       final presetTitle = patrol["preset"]["title"] as String;

@@ -3,11 +3,14 @@ import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
 
 import 'package:get/get.dart';
 
+import '../modules/patrol/controllers/patrol_controller.dart';
+
 class CustomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isPatrolView = ModalRoute.of(context)?.settings.name == '/patrol';
     final ThemeController _themeController = Get.put(ThemeController());
+    final controller = Get.find<PatrolController>();
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
@@ -28,6 +31,7 @@ class CustomNavBar extends StatelessWidget {
         children: [
           GestureDetector(
              onTap: () {
+              controller.onInit();
               Get.toNamed('/patrol');
             },
             child: Container(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_densy_project/app/modules/profile/views/profile_view.dart';
 import 'package:flutter_densy_project/app/utils/themeSwitcher.dart';
 import '../../../controllers/theme_controller.dart';
 import '../controllers/setting_controller.dart';
@@ -61,7 +60,7 @@ class SettingView extends GetView<SettingController> {
                     child: Row(
                       children: [
                         CircleAvatar(
-                          backgroundImage: NetworkImage('https://avatar.iran.liara.run/public'),
+                          backgroundImage: NetworkImage("http://localhost:4000/uploads/${controller.userImage}", scale: 1),
                           radius: 24,
                         ),
                         SizedBox(width: 10),

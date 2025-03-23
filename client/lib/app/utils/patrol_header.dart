@@ -85,7 +85,7 @@ class _PatrolHeaderState extends State<PatrolHeader> {
                   CircleAvatar(
                     radius: 28,
                     backgroundImage:
-                        NetworkImage("https://avatar.iran.liara.run/public"),
+                        NetworkImage("http://localhost:4000/uploads/${controller.userImage}", scale: 1),
                   ),
                 ],
               ),

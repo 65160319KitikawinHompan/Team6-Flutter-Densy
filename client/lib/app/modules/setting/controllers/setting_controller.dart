@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_densy_project/app/routes/app_pages.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class SettingController extends GetxController {
   final dio = Dio();
   var userData = <String, dynamic>{}.obs;
+  var userImage = "";
 
   @override
   void onInit() {
@@ -55,6 +55,7 @@ class SettingController extends GetxController {
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
         userData.value = response.data; 
+        userImage = response.data["profile"]["image"]["path"];
       } else {
         print("Error: Unexpected response format");
       }

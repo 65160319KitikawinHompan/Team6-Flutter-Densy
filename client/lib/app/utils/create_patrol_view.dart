@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
 import 'package:flutter_densy_project/app/modules/patrol/controllers/patrol_controller.dart';
 import 'package:get/get.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 String? selectedPreset;
-DateTime selectedDate = DateTime.now();
+late tz.TZDateTime selectedDate;
 late List<dynamic> presetChecklists;
 int? selectedPresetId;
 final ThemeController _themeController = Get.put(ThemeController());
@@ -20,27 +22,35 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
 
   @override
   void initState() {
-    super.initState();  
+    super.initState();
+
+    // Initialize time zones
+    tz.initializeTimeZones();
+
+    // Set initial selectedDate to Thai time
+    selectedDate = tz.TZDateTime.now(tz.getLocation('Asia/Bangkok'));
+
+    // Load presets
     presets = controller.presetsData
-      .map<Map<String, dynamic>>((preset) => {
-        'id': preset['id'],   
-        'title': preset['title'],
-        'checklists': preset['presetChecklists']
-      }).cast<Map<String, dynamic>>()
-    .toList();  
+        .map<Map<String, dynamic>>((preset) => {
+              'id': preset['id'],
+              'title': preset['title'],
+              'checklists': preset['presetChecklists'],
+            })
+        .toList();
   }
 
   void _pickDate() async {
-    DateTime? picked = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2050),
+      firstDate: tz.TZDateTime.now(tz.getLocation('Asia/Bangkok')),
+      lastDate: tz.TZDateTime(tz.getLocation('Asia/Bangkok'), 2050),
     );
 
     if (picked != null && picked != selectedDate) {
       setState(() {
-        selectedDate = picked;
+        selectedDate = tz.TZDateTime.from(picked, tz.getLocation('Asia/Bangkok'));
       });
     }
   }
@@ -77,45 +87,53 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               SizedBox(height: 16),
-              // แสดงตัวเลือกพรีเซ็ตจาก API
+              // Preset Selection
               SizedBox(
                 height: 219,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
                       if (presets.isNotEmpty)
-                    ...presets.map((preset) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedPreset = preset["title"];
-                            selectedPresetId = preset["id"];
-                            presetChecklists = preset['checklists'];
-                          });
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          height: 100,
-                          padding: EdgeInsets.all(16),
-                          margin: EdgeInsets.symmetric(vertical: 4),
-                          decoration: BoxDecoration(
-                            color: selectedPreset == preset["title"] ? _themeController.isDarkMode.value ? Colors.blue : Colors.blue : _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Text(
-                              preset["title"],
-                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: selectedPreset == preset["title"] ? _themeController.isDarkMode.value ? Colors.black87 : Colors.white : _themeController.isDarkMode.value ? Colors.white : Colors.grey[850]),
+                        ...presets.map((preset) {
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPreset = preset["title"];
+                                selectedPresetId = preset["id"];
+                                presetChecklists = preset['checklists'];
+                              });
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              height: 100,
+                              padding: EdgeInsets.all(16),
+                              margin: EdgeInsets.symmetric(vertical: 4),
+                              decoration: BoxDecoration(
+                                color: selectedPreset == preset["title"]
+                                    ? (_themeController.isDarkMode.value ? Colors.blue : Colors.blue)
+                                    : (_themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300]),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  preset["title"],
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: selectedPreset == preset["title"]
+                                        ? (_themeController.isDarkMode.value ? Colors.black87 : Colors.white)
+                                        : (_themeController.isDarkMode.value ? Colors.white : Colors.grey[850]),
+                                  ),
+                                ),
+                              ),
                             ),
-                          )
-                        ),
-                      );
-                    }).toList()
-                  else
-                    Center(child: Text("No presets available")),
+                          );
+                        }).toList()
+                      else
+                        Center(child: Text("No presets available")),
                     ],
                   ),
-                )
+                ),
               ),
               SizedBox(height: 16),
               // Date Picker
@@ -155,19 +173,19 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
                       foregroundColor: _themeController.isDarkMode.value ? Colors.white : Colors.black,
-                      minimumSize: Size(85, 45), 
+                      minimumSize: Size(85, 45),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white), 
+                        side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white),
                       ),
                     ),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       if (selectedPreset == null) {
-                        Get.snackbar("Failed", "Please Select Prestet");
-                      }else {
-                        Get.to(PatrolChecklistPage());
+                        Get.snackbar("Failed", "Please Select Preset");
+                      } else {
+                        Get.to(() => PatrolChecklistPage());
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -184,9 +202,9 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
                       children: [
                         Text(
                           "Next",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color:  _themeController.isDarkMode.value ? Colors.black : Colors.white),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _themeController.isDarkMode.value ? Colors.black : Colors.white),
                         ),
-                        SizedBox(width: 8), 
+                        SizedBox(width: 8),
                         Icon(
                           Icons.arrow_forward,
                           color: _themeController.isDarkMode.value ? Colors.black : Colors.white,
@@ -194,9 +212,9 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -204,7 +222,6 @@ class _PatrolPresetPageState extends State<PatrolPresetPage> {
     );
   }
 }
-
 
 class PatrolChecklistPage extends StatefulWidget {
   @override
@@ -217,13 +234,12 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
   @override
   void initState() {
     super.initState();
-
     checklists = presetChecklists
-      .map<Map<String, dynamic>>((checklist) => {
-        'id': checklist['checklistId'],   
-        'title': checklist['checklist']['title'],
-      }).cast<Map<String, dynamic>>()
-    .toList();  
+        .map<Map<String, dynamic>>((checklist) => {
+              'id': checklist['checklistId'],
+              'title': checklist['checklist']['title'],
+            })
+        .toList();
   }
 
   @override
@@ -231,7 +247,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
     return Scaffold(
       backgroundColor: _themeController.isDarkMode.value ? Colors.grey[900] : Colors.grey[100],
       body: Center(
-        child:  SingleChildScrollView( 
+        child: SingleChildScrollView(
           child: Center(
             child: Container(
               margin: EdgeInsets.all(20),
@@ -285,7 +301,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                   SizedBox(height: 16),
                   Text("Checklist", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
                   SizedBox(height: 8),
-                  // แสดงตัวเลือกพรีเซ็ตจาก API
+                  // Checklist Selection
                   SizedBox(
                     height: 280,
                     child: SingleChildScrollView(
@@ -299,7 +315,7 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                                   padding: EdgeInsets.all(16),
                                   margin: EdgeInsets.symmetric(vertical: 4),
                                   decoration: BoxDecoration(
-                                    color:  _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
+                                    color: _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Column(
@@ -347,8 +363,8 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                           else
                             Center(child: Text("No presets available")),
                         ],
-                      )
-                    )
+                      ),
+                    ),
                   ),
                   SizedBox(height: 16),
                   Row(
@@ -361,10 +377,10 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _themeController.isDarkMode.value ? Colors.grey[850] : Colors.grey[300],
                           foregroundColor: _themeController.isDarkMode.value ? Colors.white : Colors.black,
-                          minimumSize: Size(85, 45), 
+                          minimumSize: Size(85, 45),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white), 
+                            side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white),
                           ),
                         ),
                       ),
@@ -378,26 +394,25 @@ class _PatrolChecklistPageState extends State<PatrolChecklistPage> {
                           }).toList();
 
                           controller.postPatrol(
-                            selectedDate.toIso8601String() + "Z",
+                            selectedDate.toIso8601String(),
                             selectedPresetId!,
                             formattedChecklists,
                           );
-                          Get.offAllNamed('/patrol');
                         },
                         icon: Icon(Icons.note_add_outlined, color: _themeController.isDarkMode.value ? Colors.black : Colors.white, size: 24),
                         label: Text("New Patrol", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: _themeController.isDarkMode.value ? Colors.black : Colors.white,
-                          minimumSize: Size(85, 50), 
+                          minimumSize: Size(85, 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white), 
+                            side: BorderSide(color: _themeController.isDarkMode.value ? Colors.black : Colors.white),
                           ),
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),

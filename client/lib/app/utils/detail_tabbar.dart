@@ -40,11 +40,6 @@ class _DetailTabBarState extends State<DetailTabBar> {
             label: "Detail",
             icon: Icons.list,
           ),
-          _buildTabButton(
-            index: 1,
-            label: "Comment",
-            icon: Icons.campaign_outlined,
-          ),
         ],
       ),
     );
