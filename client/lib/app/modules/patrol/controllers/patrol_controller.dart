@@ -1,4 +1,3 @@
-import 'package:flutter_densy_project/app/routes/app_pages.dart';
 import 'package:flutter_densy_project/app/utils/create_patrol_view.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -152,6 +151,7 @@ class PatrolController extends GetxController {
           },
         ),
       );
+      onInit();
       Get.snackbar("Success", "Create Patrol Successful");
     } catch (e) {
       print("Error: $e");

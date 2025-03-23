@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
+import 'package:flutter_densy_project/app/modules/detail/controllers/detail_controller.dart';
+import 'package:get/get.dart';
+
+final ThemeController _themeController = Get.put(ThemeController());
 
 class YesNoButtonGroup extends StatefulWidget {
   final bool? hasResult;
@@ -6,6 +11,7 @@ class YesNoButtonGroup extends StatefulWidget {
   final int itemId; 
   final int zoneId; 
   final Function(int itemId, int zoneId, bool status)? onSelectionChanged; 
+  final List<dynamic> comments;
 
   const YesNoButtonGroup({
     Key? key, 
@@ -13,7 +19,8 @@ class YesNoButtonGroup extends StatefulWidget {
     required this.patrolStatus, 
     required this.itemId,
     required this.zoneId,
-    this.onSelectionChanged,
+    this.onSelectionChanged, 
+    required this.comments,
   }) : super(key: key);
 
   @override
@@ -22,15 +29,18 @@ class YesNoButtonGroup extends StatefulWidget {
 
 class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
   String? _selected; // เก็บค่าว่า user เลือก "yes" หรือ "no" หรือยังไม่เลือก (null)
+  final controller = Get.find<DetailController>();
 
   @override
   void initState() {
     super.initState();
     // ตั้งค่าเริ่มต้นตามค่า hasReult
-    if (widget.hasResult != null) {
+     if (widget.comments.isNotEmpty) {
+      _selected = "no"; 
+    } else if (widget.hasResult != null) {
       _selected = widget.hasResult == true ? "yes" : "no";
     } else {
-      _selected = null; 
+      _selected = null;
     }
   }
 
@@ -44,7 +54,7 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
           isSelected: _selected == "yes",
           patrolStatus: widget.patrolStatus,
           onPressed: () {
-            if (widget.patrolStatus == "on_going") {
+            if (widget.patrolStatus == "on_going" && widget.comments.isEmpty) {
               setState(() {
                 _selected = "yes";
               });
@@ -58,7 +68,7 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
           isSelected: _selected == "no",
           patrolStatus: widget.patrolStatus,
           onPressed: () {
-            if (widget.patrolStatus == "on_going") {
+            if (widget.patrolStatus == "on_going" || widget.comments.isNotEmpty) {
               setState(() {
                 _selected = "no";
               });
@@ -87,7 +97,7 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
       backgroundColor = (label == "Yes") ? Colors.green : Colors.red; // Selected state
       foregroundColor = Colors.white; // White text and icon for better contrast
     } else {
-      backgroundColor = Colors.grey[300]!; // Default gray color
+      backgroundColor = _themeController.isDarkMode.value ? Colors.grey[800]! : Colors.grey[300]!; // Default gray color
       foregroundColor = const Color(0xFF333840); // Default text and icon color
     }
     IconData? leadingIcon;
@@ -112,7 +122,7 @@ class _YesNoButtonGroupState extends State<YesNoButtonGroup> {
             fontWeight: FontWeight.w600, 
             fontSize: 18,
           ),
-          foregroundColor: const Color(0xFF333840),
+          foregroundColor: _themeController.isDarkMode.value ? Colors.white : Colors.black87,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

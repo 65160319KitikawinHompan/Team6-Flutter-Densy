@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
 import 'package:flutter_densy_project/app/modules/detail/controllers/detail_controller.dart';
 import 'package:flutter_densy_project/app/utils/yes_no_button.dart';
 import 'package:get/get.dart';
@@ -10,11 +11,12 @@ class ItemCard extends StatefulWidget {
   final String zoneName;
   final bool? hasReult;
   final String patrolStatus;
-  final int itemId; 
-  final int zoneId; 
+  final int itemId;
+  final int zoneId;
   final Function(int itemId, int zoneId, bool status)? onSelectionChanged;
   final int patrolResultId;
   final int supervisorId;
+  final List<dynamic> comments;
 
   const ItemCard({
     Key? key,
@@ -26,9 +28,10 @@ class ItemCard extends StatefulWidget {
     required this.zoneId,
     this.onSelectionChanged,
     required this.supervisorName,
-    required this.zoneName, 
-    required this.patrolResultId, 
-    required this.supervisorId,
+    required this.zoneName,
+    required this.patrolResultId,
+    required this.supervisorId, 
+    required this.comments,
   }) : super(key: key);
 
   @override
@@ -38,7 +41,7 @@ class ItemCard extends StatefulWidget {
 class _ItemCardState extends State<ItemCard> {
   bool isExpanded = false;
   final TextEditingController _commentController = TextEditingController();
-  String? _selected; 
+  String? _selected;
   final controller = Get.find<DetailController>();
 
   @override
@@ -47,7 +50,6 @@ class _ItemCardState extends State<ItemCard> {
     // Initialize the selection based on hasResult
     if (widget.hasReult != null) {
       _selected = widget.hasReult == true ? "yes" : "no";
-
     } else {
       _selected = null;
     }
@@ -62,6 +64,7 @@ class _ItemCardState extends State<ItemCard> {
   @override
   Widget build(BuildContext context) {
     final variant = getItemTypeVariant(widget.type);
+    final ThemeController _themeController = Get.put(ThemeController());
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -88,9 +91,10 @@ class _ItemCardState extends State<ItemCard> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       widget.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
+                        color: _themeController.isDarkMode.value ? Colors.white: Colors.black87,
                       ),
                     ),
                   ),
@@ -100,7 +104,7 @@ class _ItemCardState extends State<ItemCard> {
                       ? Icons.keyboard_arrow_up_rounded
                       : Icons.keyboard_arrow_down_rounded,
                   size: 28,
-                  color: Colors.black87,
+                  color: _themeController.isDarkMode.value ? Colors.white: Colors.black87,
                   weight: 600,
                 ),
               ],
@@ -148,7 +152,9 @@ class _ItemCardState extends State<ItemCard> {
               width: 307,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF333840),
+                color: _themeController.isDarkMode.value
+                      ? Colors.grey[200]
+                      : Colors.grey[800],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -157,29 +163,29 @@ class _ItemCardState extends State<ItemCard> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.location_on,
-                        color: Colors.white,
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: _themeController.isDarkMode.value? Colors.black : Colors.white,
                         size: 24,
                       ),
                       const SizedBox(width: 6),
-                      const Text(
+                      Text(
                         'Zone',
                         style: TextStyle(
                           fontFamily: 'Manrope',
                           fontWeight: FontWeight.w600, // semibold
                           fontSize: 16,
-                          color: Colors.white,
+                          color: _themeController.isDarkMode.value ? Colors.black87 : Colors.white,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         widget.zoneName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'Manrope',
                           fontWeight: FontWeight.normal, // regular
                           fontSize: 16,
-                          color: Colors.white,
+                          color: _themeController.isDarkMode.value ? Colors.black87 : Colors.white,
                         ),
                       ),
                     ],
@@ -188,25 +194,22 @@ class _ItemCardState extends State<ItemCard> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // icon supervisor w=24,h=24 สีขาว
-                      const Icon(
+                      Icon(
                         Icons.supervisor_account,
-                        color: Colors.white,
+                        color: _themeController.isDarkMode.value ? Colors.black : Colors.white,
                         size: 24,
                       ),
                       const SizedBox(width: 6),
-
-                      const Text(
+                      Text(
                         'Supervisor',
                         style: TextStyle(
                           fontFamily: 'Manrope',
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
-                          color: Colors.white,
+                          color: _themeController.isDarkMode.value ? Colors.black87 : Colors.white,
                         ),
                       ),
                       const SizedBox(width: 6),
-
                       const CircleAvatar(
                         radius: 16,
                         backgroundColor: Colors.white,
@@ -215,14 +218,13 @@ class _ItemCardState extends State<ItemCard> {
                         ),
                       ),
                       const SizedBox(width: 6),
-
                       Text(
                         widget.supervisorName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'Manrope',
                           fontWeight: FontWeight.normal,
                           fontSize: 16,
-                          color: Colors.white,
+                          color: _themeController.isDarkMode.value ? Colors.black87 : Colors.white,
                         ),
                       ),
                     ],
@@ -231,46 +233,114 @@ class _ItemCardState extends State<ItemCard> {
                   YesNoButtonGroup(
                     hasResult: widget.hasReult,
                     patrolStatus: widget.patrolStatus,
-                    itemId: widget.itemId, 
-                    zoneId: widget.zoneId, 
+                    itemId: widget.itemId,
+                    zoneId: widget.zoneId,
+                    comments: widget.comments,
                     onSelectionChanged: (itemId, zoneId, status) {
                       setState(() {
-                        _selected = status ? "yes" : "no"; 
+                        _selected = status ? "yes" : "no"; // Update the selected state
                       });
-                      widget.onSelectionChanged?.call(itemId, zoneId, status); 
+
+                      // Check if an entry with the same itemId and zoneId already exists
+                      final existingIndex = controller.startPatrolResult.indexWhere(
+                        (result) => result['itemId'] == itemId && result['zoneId'] == zoneId,
+                      );
+
+                      if (existingIndex != -1) {
+                        // Update the existing entry
+                        controller.startPatrolResult[existingIndex]['status'] = status;
+                      } else {
+                        // Add a new entry
+                        controller.startPatrolResult.add({
+                          'itemId': itemId,
+                          'zoneId': zoneId,
+                          'status': status,
+                        });
+                      }
+
+                      // Call the parent callback if provided
+                      widget.onSelectionChanged?.call(itemId, zoneId, status);
+
+                      // Debug prints
+                      print(controller.startPatrolResult);
+                      print(controller.startPatrolResult.length);
                     },
                   ),
                   const SizedBox(height: 6),
-                  if (_selected == "no")
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end, 
-                      children: [
-                        TextFormField(
-                          controller: _commentController,
-                          decoration: const InputDecoration(
-                            hintText: "Enter your comment...",
-                            border: OutlineInputBorder(),
-                            filled: true,
-                            fillColor: Colors.white,
+                  if (widget.comments.isNotEmpty) ...[
+                    const SizedBox(height: 12), 
+                    ...widget.comments.map((comment) {
+                      // Format the timestamp
+                      final timestamp = comment["timestamp"] != null
+                          ? DateTime.parse(comment["timestamp"])
+                              .toLocal()
+                              .toString()
+                              .split('.')[0] 
+                          : "No timestamp";
+                      final formattedTimestamp = timestamp != "No timestamp"
+                          ? "${timestamp.split(' ')[0]} ${timestamp.split(' ')[1].substring(0, 5)}" 
+                          : timestamp;
+
+                      return Container(
+                        width: 307,
+                        margin: const EdgeInsets.only(bottom: 8), 
+                        padding: const EdgeInsets.all(12), 
+                        decoration: BoxDecoration(
+                          color: _themeController.isDarkMode.value ? Colors.grey[300] : Colors.grey[700], 
+                          borderRadius: BorderRadius.circular(12), 
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "$formattedTimestamp\n${comment["message"] ?? "No message"}",
+                              style: TextStyle(
+                                color: _themeController.isDarkMode.value ? Colors.black87 : Colors.white, 
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 4), 
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                  if (_selected == "no" && widget.patrolStatus != "completed")
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          TextFormField(
+                            controller: _commentController,
+                            decoration: const InputDecoration(
+                              hintText: "Enter your comment...",
+                              border: OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.white,
+                            ),
+                            maxLines: 2,
                           ),
-                          maxLines: 2,
-                        ),
-                        const SizedBox(height: 10), 
-                        ElevatedButton(
-                          onPressed: () {
-                            final comment = _commentController.text.trim();
-                            if (comment.isNotEmpty) {
-                              controller.postComment(_commentController.text, widget.patrolResultId, widget.supervisorId);
-                              _commentController.clear();
-                            } 
-                          },
-                          child: const Text("Send"),
-                        ),
-                      ],
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              final comment = _commentController.text.trim();
+                              if (comment.isNotEmpty) {
+                                controller.postComment(
+                                  comment,
+                                  widget.patrolResultId,
+                                  widget.supervisorId,
+                                );
+                                _commentController.clear();
+                              } else {
+                                Get.snackbar("Error", "Please enter a comment.");
+                              }
+                            },
+                            child: const Text("Send"),
+                          ),
+                        ],
+                      ),
                     ),
-                  )
                 ],
               ),
             ),

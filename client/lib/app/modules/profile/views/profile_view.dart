@@ -67,9 +67,7 @@ class ProfileView extends GetView<ProfileController> {
                             hint: controller.userData?["email"]?.toString() ?? "N/A",
                             controller: controller.emailController,
                             validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return "Please enter your email";
-                              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value!) && value.isNotEmpty) {
                                 return "Enter a valid email address";
                               }
                               return null;

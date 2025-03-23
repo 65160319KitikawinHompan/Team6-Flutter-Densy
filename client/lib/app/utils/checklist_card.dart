@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_densy_project/app/controllers/theme_controller.dart';
+import 'package:get/get.dart';
 
 class ChecklistCard extends StatefulWidget {
   final String title;
@@ -25,6 +27,7 @@ class _ChecklistCardState extends State<ChecklistCard> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeController _themeController = Get.put(ThemeController());
     return AnimatedContainer(
       duration: const Duration(milliseconds: 0),
       margin: const EdgeInsets.symmetric(vertical: 0),
@@ -32,16 +35,16 @@ class _ChecklistCardState extends State<ChecklistCard> {
       decoration: BoxDecoration(
         gradient: isExpanded
             ? LinearGradient(
-                colors: [const Color(0xFFFFFFFF), widget.statusColor],
+                colors: [_themeController.isDarkMode.value? const Color.fromARGB(255, 24, 22, 22) : Colors.white, widget.statusColor],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               )
             : null,
-        color: isExpanded ? null : Colors.white,
+        color: isExpanded ? null : _themeController.isDarkMode.value? const Color.fromARGB(255, 24, 22, 22) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: _themeController.isDarkMode.value? Colors.black.withOpacity(0.1) : Colors.white.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -62,9 +65,10 @@ class _ChecklistCardState extends State<ChecklistCard> {
                 // Title
                 Text(
                   widget.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
+                    color: _themeController.isDarkMode.value ? Colors.white : Colors.black87,
                   ),
                 ),
 
@@ -74,7 +78,7 @@ class _ChecklistCardState extends State<ChecklistCard> {
                       ? Icons.keyboard_arrow_up_rounded
                       : Icons.keyboard_arrow_down_rounded,
                   size: 32,
-                  color: Colors.black87,
+                  color: _themeController.isDarkMode.value? Colors.white : Colors.black,
                   weight: 600,
                 ),
               ],
@@ -104,9 +108,10 @@ class _ChecklistCardState extends State<ChecklistCard> {
                 const SizedBox(width: 8),
                 Text(
                   widget.inspectorName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.normal,
+                    color: _themeController.isDarkMode.value ? Colors.white : Colors.black87,
                   ),
                 ),
               ],

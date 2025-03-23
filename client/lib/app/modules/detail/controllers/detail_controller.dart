@@ -3,11 +3,12 @@ import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
 
 class DetailController extends GetxController {
-  var patrolDetail = {}.obs; // Store patrol details as a Map
-  var presetsData = {}.obs; // Store preset data as a Map
-  var patrolDetailResult = [].obs; // Store results as a List
-
+  var patrolDetail = {}.obs; 
+  var presetsData = {}.obs; 
+  var patrolDetailResult = [].obs; 
+  var startPatrolResult = [].obs;
   final dio = Dio();
+  var totalItems = 0.obs;
 
   @override
   void onInit() {
@@ -25,6 +26,7 @@ class DetailController extends GetxController {
   }
 
   Future<void> fetchPatrolDetail() async {
+    totalItems.value = 0;
     final patrolId = Get.parameters['id'];
     final box = GetStorage();
     String? accessToken = box.read('token');
@@ -44,13 +46,14 @@ class DetailController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        print("Response Data: ${response.data}");
-
-        // Ensure the response data is a Map
         if (response.data is Map) {
           patrolDetail.value = response.data;
-          patrolDetailResult.value = response.data["results"] ?? []; // Assign as List
-          print("Patrol Detail Results: ${patrolDetailResult}");
+          patrolDetailResult.value = response.data["results"] ?? []; 
+
+          // Funtion นับ Item
+          for (var checklist in response.data["patrolChecklists"]) {
+            totalItems.value += (checklist["checklist"]["items"].length as int);
+          }
           await fetchPresetData();
         } else {
           print("Error: Expected a Map response, but got a List");
@@ -102,6 +105,7 @@ class DetailController extends GetxController {
 
       if (response.statusCode == 200) {
         print("Patrol started successfully");
+        onInit();
       } else {
         print("Error: Unexpected status code ${response.statusCode}");
       }
@@ -219,14 +223,17 @@ class DetailController extends GetxController {
       return;
     }
 
-    if (!_areAllChecklistsCompleted(patrolChecklists, patrolDetailResult)) {
+    print(totalItems.value);
+    print("-------");
+      print(startPatrolResult.length);
+    if (startPatrolResult.length != totalItems.value) {
       Get.snackbar("Fail", "Cannot finish patrol Not all checklist items are completed.");
-      return; // Exit the function if not all items are completed
+      return; 
     }
 
     var requestPayload = {
-      'status': 'completed', // Set status to completed
-      'checklists': _mapChecklists(patrolChecklists),
+      'status': 'on_going', // Set status to completed
+      'checklists': _mapChecklistsForFinish(patrolChecklists),
       'results': _mapResults(patrolDetailResult),
       'endTime': DateTime.now().toUtc().toIso8601String(), // Add the end time
     };
@@ -246,6 +253,7 @@ class DetailController extends GetxController {
       if (response.statusCode == 200) {
         print("Patrol finished successfully");
         Get.snackbar("Success", "Patrol finished successfully");
+        onInit();
       } else {
         print("Error: Unexpected status code ${response.statusCode}");
         Get.snackbar("Error", "Unexpected status code ${response.statusCode}");
@@ -257,42 +265,6 @@ class DetailController extends GetxController {
       print("Unexpected error finishing patrol: ${e.toString()}");
       Get.snackbar("Error", "Unexpected error: ${e.toString()}");
     }
-  }
-
-  List<Map<String, dynamic>> _mapChecklists(List<dynamic> patrolChecklists) {
-    return patrolChecklists.map((checklist) {
-      return {
-        'id': checklist['id'],
-        'patrolId': checklist['patrolId'],
-        'checklistId': checklist['checklistId'],
-        'userId': checklist['userId'],
-        'checklist': {
-          'id': checklist['checklist']['id'],
-          'title': checklist['checklist']['title'],
-          'items': checklist['checklist']['items'].map((item) {
-            return {
-              'id': item['id'],
-              'name': item['name'],
-              'type': item['type'],
-              'checklistId': item['checklistId'],
-              'itemZones': item['itemZones'].map((itemZone) {
-                return {
-                  'zone': {
-                    'id': itemZone['zone']['id'],
-                    'name': itemZone['zone']['name'],
-                  },
-                };
-              }).toList(),
-            };
-          }).toList(),
-        },
-        'inspector': {
-          'id': checklist['inspector']['id'],
-          'email': checklist['inspector']['email'],
-          'profile': checklist['inspector']['profile'],
-        },
-      };
-    }).toList();
   }
 
   List<Map<String, dynamic>> _mapChecklistsForFinish(List<dynamic> patrolChecklists) {
@@ -325,21 +297,7 @@ class DetailController extends GetxController {
         'inspector': {
           'id': checklist['inspector']['id'],
           'email': checklist['inspector']['email'],
-          'profile': {
-            'id': checklist['inspector']['profile']['id'],
-            'name': checklist['inspector']['profile']['name'],
-            'age': checklist['inspector']['profile']['age'],
-            'tel': checklist['inspector']['profile']['tel'],
-            'address': checklist['inspector']['profile']['address'],
-            'userId': checklist['inspector']['profile']['userId'],
-            'imageId': checklist['inspector']['profile']['imageId'],
-            'image': {
-              'id': checklist['inspector']['profile']['image']['id'],
-              'path': checklist['inspector']['profile']['image']['path'],
-              'timestamp': checklist['inspector']['profile']['image']['timestamp'],
-              'updatedBy': checklist['inspector']['profile']['image']['updatedBy'],
-            },
-          },
+          'profile': checklist['inspector']['profile'],
         },
       };
     }).toList();
@@ -378,32 +336,6 @@ class DetailController extends GetxController {
     }).toList();
   }
 
-  bool _areAllChecklistsCompleted(List<dynamic> patrolChecklists, List<dynamic> results) {
-    for (var checklist in patrolChecklists) {
-      var items = checklist['checklist']['items'];
-      for (var item in items) {
-        var itemId = item['id'];
-        var itemZones = item['itemZones'];
-
-        for (var itemZone in itemZones) {
-          var zoneId = itemZone['zone']['id'];
-
-          // Find the result for this item and zone
-          var result = results.firstWhere(
-            (result) => result['itemId'] == itemId && result['zoneId'] == zoneId,
-            orElse: () => null,
-          );
-
-          // If no result or status is null, the patrol is not complete
-          if (result == null || result['status'] == null) {
-            return false;
-          }
-        }
-      }
-    }
-    return true;
-  }
-
   Future<void> postComment(String message, int patrolResultId, int supervisorId) async {
     try {
       final patrolId = Get.parameters['id'];
@@ -423,11 +355,11 @@ class DetailController extends GetxController {
           },
         ),
       );
-      Get.snackbar("Success", "Create Patrol Successful");
+      Get.snackbar("Success", "Create Comment Successful");
       print(response.data);
     } catch (e) {
       print("Error: $e");
-      Get.snackbar("Error", "Failed to Create Patrol");
+      Get.snackbar("Error", "Failed to Create Comment, $patrolResultId , $supervisorId, $message");
     }
   }
 }
